@@ -1,17 +1,19 @@
 'use strict';
 
-const assert = require('assertive');
+const assert = require('assert');
 
 const Cache = require('../lib/cache');
 
 describe('Cache', () => {
   it('always has a backend', () => {
     const cache = new Cache({});
-    assert.truthy(cache.backend);
+
+    assert.ok(cache.backend);
   });
 
   it('has a "noop" backend by default', () => {
     const cache = new Cache({});
-    assert.equal('noop', cache.backend.type);
+
+    assert.strictEqual(cache.backend.type, 'noop');
   });
 });

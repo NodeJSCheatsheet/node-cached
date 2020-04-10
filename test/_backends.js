@@ -18,6 +18,7 @@ module.exports = function withBackends(createTestCases) {
         name: 'awesome-name',
         debug: true,
       });
+
       after(() => cache.end());
 
       createTestCases(cache);

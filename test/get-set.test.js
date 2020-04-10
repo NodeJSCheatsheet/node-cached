@@ -1,9 +1,9 @@
 'use strict';
 
-const assert = require('assertive');
-const Bluebird = require('bluebird');
+const assert = require('assert');
 
 const withBackends = require('./_backends');
+const { delay } = require('./_helper');
 
 describe('Cache::{get,set,unset}', () => {
   withBackends(cache => {
@@ -14,7 +14,7 @@ describe('Cache::{get,set,unset}', () => {
           if (getError) return done(getError);
           let assertError = null;
           try {
-            assert.equal('callback-value', value);
+            assert.strictEqual(value, 'callback-value');
           } catch (error) {
             assertError = error;
           }
@@ -26,10 +26,11 @@ describe('Cache::{get,set,unset}', () => {
 
     it('get/set (promise style)', async () => {
       await cache.set('promise-key', 'promise-value', { expire: 1 });
-      assert.equal('promise-value', await cache.get('promise-key'));
+
+      assert.strictEqual(await cache.get('promise-key'), 'promise-value');
     });
 
-    it('set/unset (callback style', done => {
+    it('set/unset (callback style)', done => {
       cache.set('callback-key', 'callback-value', setError => {
         if (setError) return done(setError);
         cache.unset('callback-key', unsetError => {
@@ -38,7 +39,7 @@ describe('Cache::{get,set,unset}', () => {
             if (getError) return done(getError);
             let assertError = null;
             try {
-              assert.equal(null, value);
+              assert.strictEqual(value, null);
             } catch (error) {
               assertError = error;
             }
@@ -53,7 +54,8 @@ describe('Cache::{get,set,unset}', () => {
     it('set/unset (promise style)', async () => {
       await cache.set('promise-key', 'promise-value', { expire: 1 });
       await cache.unset('promise-key');
-      assert.equal(null, await cache.get('promise-key'));
+
+      assert.strictEqual(await cache.get('promise-key'), null);
     });
 
     it('honors expires', async () => {
@@ -63,22 +65,21 @@ describe('Cache::{get,set,unset}', () => {
         key3: 'Value 3',
       };
 
-      await Bluebird.all([
+      await Promise.all([
         cache.set('key1', values.key1, { expire: 1 }),
         cache.set('key2', values.key2, { expire: 0 }),
         cache.set('key3', values.key3, { expire: 4 }),
       ]);
 
-      await Bluebird.delay(2000);
+      await delay(2000);
 
-      const [expired, eternal, hit] = await Bluebird.map(
-        ['key', 'key2', 'key3'],
-        key => cache.get(key)
+      const [expired, eternal, hit] = await Promise.all(
+        ['key', 'key2', 'key3'].map(key => cache.get(key))
       );
 
-      assert.equal(null, expired);
-      assert.equal(values.key2, eternal);
-      assert.equal(values.key3, hit);
+      assert.strictEqual(expired, null);
+      assert.strictEqual(eternal, values.key2);
+      assert.strictEqual(hit, values.key3);
     });
   });
 });

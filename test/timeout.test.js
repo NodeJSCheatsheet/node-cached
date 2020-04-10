@@ -1,11 +1,17 @@
 'use strict';
 
-const assert = require('assertive');
+const assert = require('assert');
 const Bluebird = require('bluebird');
 
 const identity = val => val;
 
 const Cache = require('../lib/cache');
+const { delay } = require('./_helper');
+
+async function tooSlow(ms, msg) {
+  await delay(ms);
+  return msg;
+}
 
 describe('Cache timeouts', () => {
   const cache = new Cache({
@@ -25,31 +31,31 @@ describe('Cache timeouts', () => {
     before(() => (cache.defaults.timeout = 50));
 
     it('get fails fast', async () => {
-      const err = await Bluebird.race([
+      const err = await Promise.race([
         cache.get('my-key').then(null, identity),
-        Bluebird.delay(100, 'too slow'), // this should not be used
+        tooSlow(100, 'too slow'), // this should not be used
       ]);
-      assert.expect(err instanceof Error);
-      assert.equal('TimeoutError', err.name);
+      assert.ok(err instanceof Error);
+      assert.strictEqual(err.name, 'TimeoutError');
     });
 
     it('set fails fast', async () => {
-      const err = await Bluebird.race([
+      const err = await Promise.race([
         cache.set('my-key', 'my-value').then(null, identity),
-        Bluebird.delay(100, 'too slow'), // this should not be used
+        tooSlow(100, 'too slow'), // this should not be used
       ]);
-      assert.expect(err instanceof Error);
-      assert.equal('TimeoutError', err.name);
+      assert.ok(err instanceof Error);
+      assert.strictEqual(err.name, 'TimeoutError');
     });
 
     it('getOrElse fails fast', async () => {
-      const value = await Bluebird.race([
+      const value = await Promise.race([
         cache.getOrElse('my-key', 'my-value').then(null, identity),
         // We need to add a bit of time here because we'll run into the
         // timeout twice - once when trying to read and once while writing.
-        Bluebird.delay(150, 'too slow'), // this should not be used
+        tooSlow(150, 'too slow'), // this should not be used
       ]);
-      assert.equal('my-value', value);
+      assert.strictEqual(value, 'my-value');
     });
   });
 
@@ -57,27 +63,28 @@ describe('Cache timeouts', () => {
     before(() => (cache.defaults.timeout = 250));
 
     it('receives the value', async () => {
-      const value = await Bluebird.race([
+      const value = await Promise.race([
         cache.get('my-key').then(null, identity),
-        Bluebird.delay(200, 'too slow'), // this should not be used
+        tooSlow(200, 'too slow'), // this should not be used
       ]);
-      assert.equal('get result', value);
+      assert.strictEqual(value, 'get result');
     });
 
     it('sets the value', async () => {
-      const value = await Bluebird.race([
+      const value = await Promise.race([
         cache.set('my-key', 'my-value').then(null, identity),
-        Bluebird.delay(200, 'too slow'), // this should not be used
+        tooSlow(200, 'too slow'), // this should not be used
       ]);
-      assert.equal('set result', value);
+      assert.strictEqual(value, 'set result');
     });
 
     it('getOrElse can retrieve a value', async () => {
-      const value = await Bluebird.race([
+      const value = await Promise.race([
         cache.getOrElse('my-key', 'my-value').then(null, identity),
-        Bluebird.delay(200, 'too slow'), // this should not be used
+        tooSlow(200, 'too slow'), // this should not be used
       ]);
-      assert.equal('get result', value);
+
+      assert.strictEqual(value, 'get result');
     });
   });
 });
