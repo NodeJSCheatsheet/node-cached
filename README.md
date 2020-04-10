@@ -17,41 +17,41 @@ More detailed API docs are in the next section.
 ### Getting and setting
 
 ```js
-cached = require('cached');
+const cached = require('cached');
 
-kittens = cached('kittens');
+const kittens = cached('kittens');
 
 // Set a key using a plain value
 kittens.set('my.key', 'Hello World');
 
 // Set a key using a lazily created promise (or value)
-kittens.set('my.key', function() {
+kittens.set('my.key', () => {
   return cache.get('other.key');
 });
 
 // Set a key using a callback-style function
-kittens.set('my.key', cached.deferred(function(done) {
+kittens.set('my.key', cached.deferred(done => {
   done(null, 'Hello World');
 }));
 
-kittens.getOrElse('my.key', function() {
+kittens.getOrElse('my.key', () => {
   // This will store "Hello World" for key "my.key" if
   // "my.key" was not found
   return 'Hello World';
-}).then(function(data) {
+}).then(data => {
   console.log(data);
 });
 
-kittens.get('my.key', function(err, data) {
+kittens.get('my.key', (err, data) => {
   // Handle it the callback way
 });
 
 // Handle it the promise way
 kittens.get('my.key').then(
-  function(data) {
+  data => {
     console.log(data);
   },
-  function(err) {
+  err => {
     throw err;
   }
 );
@@ -68,11 +68,11 @@ Without any additional options it will default to a local memcached on `11211`.
 #### Custom client instance
 
 ```js
-var Memcached = require('memcached');
+const Memcached = require('memcached');
 
 cached('myStuff', { backend: {
   type: 'memcached',
-  client: new Memcached('192.168.0.102:11212', { poolSize: 15 })
+  client: new Memcached('192.168.0.102:11212', { poolSize: 15 }),
 }});
 ```
 
@@ -84,7 +84,7 @@ This will create the same cache as above.
 cached('myStuff', { backend: {
   type: 'memcached',
   hosts: '192.168.0.102:11212',
-  poolSize: 15
+  poolSize: 15,
 }});
 ```
 
@@ -97,7 +97,7 @@ Stores all the data in an in-memory object.
 
 ```js
 cached('myStuff', { backend: {
-  type: 'memory'
+  type: 'memory',
 }});
 ```
 
@@ -109,7 +109,7 @@ Doesn't store data at all. All `set` operations succeed and `get` operations beh
 
 ```js
 cached('myStuff', { backend: {
-  type: 'noop'
+  type: 'noop',
 }});
 ```
 
@@ -149,12 +149,15 @@ In other words: this is what you'd want to wrap your node-style functions in whe
 #### Example:
 
 ```js
-var f = cached.deferred(function(cb) {
-  var req = require('http').get(myUrl, function(res) {
+const http = require('http');
+
+const f = cached.deferred(cb => {
+  const req = http.get(myUrl, res => {
     cb(null, res.statusCode);
   });
   req.once('error', cb);
 });
+
 // f can now be called and the return value will be a promise
 f().then(function(statusCode) { console.log(statusCode); });
 // More importantly it can be passed into cache.set
