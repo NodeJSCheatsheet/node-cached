@@ -59,9 +59,6 @@ describe('cached', () => {
     const deferred = cached.deferred(fn);
 
     assert.strictEqual(typeof deferred, 'function');
-    assert.strictEqual(
-      Object.getPrototypeOf(deferred()).constructor.name,
-      'Promise'
-    );
+    assert.ok(deferred() instanceof Promise);
   });
 });
