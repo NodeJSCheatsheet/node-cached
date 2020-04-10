@@ -16,4 +16,8 @@ describe('Cache', () => {
 
     assert.strictEqual(cache.backend.type, 'noop');
   });
+
+  it('throws for unknown backend', () => {
+    assert.throws(() => new Cache({ backend: { type: 'foo' } }));
+  });
 });

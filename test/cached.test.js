@@ -27,4 +27,41 @@ describe('cached', () => {
 
   it('returns the same named cache for subsequent calls', () =>
     assert.strictEqual(cached('foo'), cached('foo')));
+
+  it('dropNamedCache() removes specific cache', () => {
+    cached('bar');
+    cached('foo');
+    cached('ponyfoo');
+
+    cached.dropNamedCache('foo');
+
+    assert.deepStrictEqual(cached.knownCaches(), ['bar', 'ponyfoo']);
+  });
+
+  it('knownCaches() returns all named caches', () => {
+    cached('bar');
+
+    assert.deepStrictEqual(cached.knownCaches(), ['bar']);
+  });
+
+  it('dropNamedCaches() removes all caches', () => {
+    cached('bar');
+
+    cached.dropNamedCaches();
+
+    assert.deepStrictEqual(cached.knownCaches(), []);
+  });
+
+  it('deferred() promisifies passed function', async () => {
+    const fn = cb => {
+      return cb();
+    };
+    const deferred = cached.deferred(fn);
+
+    assert.strictEqual(typeof deferred, 'function');
+    assert.strictEqual(
+      Object.getPrototypeOf(deferred()).constructor.name,
+      'Promise'
+    );
+  });
 });

@@ -2,8 +2,6 @@
 
 /* eslint-env mocha */
 
-const { defaults } = require('lodash');
-
 const Cache = require('../lib/cache');
 
 const backendOptions = {
@@ -14,7 +12,7 @@ module.exports = function withBackends(createTestCases) {
   ['memory', 'memcached'].forEach(backendType => {
     describe(`with backend "${backendType}"`, () => {
       const cache = new Cache({
-        backend: defaults({ type: backendType }, backendOptions),
+        backend: { ...backendOptions, type: backendType },
         name: 'awesome-name',
         debug: true,
       });
