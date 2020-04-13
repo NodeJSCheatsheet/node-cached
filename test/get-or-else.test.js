@@ -20,7 +20,7 @@ describe('Cache::getOrElse', () => {
     let cache;
     before(() => {
       cache = new Cache({ backend: 'memory', name: 'awesome-name' });
-      cache.getWrapped = () =>
+      cache.backend.get = () =>
         Promise.reject(new Error('backend get troubles'));
     });
 
@@ -40,7 +40,8 @@ describe('Cache::getOrElse', () => {
     let cache;
     before(() => {
       cache = new Cache({ backend: 'memory', name: 'awesome-name' });
-      cache.set = () => Promise.reject(new Error('backend set troubles'));
+      cache.backend.set = () =>
+        Promise.reject(new Error('backend set troubles'));
     });
 
     function generateBunnies() {

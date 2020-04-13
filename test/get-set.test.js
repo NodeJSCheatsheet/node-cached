@@ -26,8 +26,9 @@ describe('Cache::{get,set,unset}', () => {
 
     it('get/set (promise style)', async () => {
       await cache.set('promise-key', 'promise-value', { expire: 1 });
+      const value = await cache.get('promise-key');
 
-      assert.strictEqual(await cache.get('promise-key'), 'promise-value');
+      assert.strictEqual(value, 'promise-value');
     });
 
     it('set/unset (callback style)', done => {
