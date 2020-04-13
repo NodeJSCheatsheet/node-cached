@@ -25,6 +25,12 @@ describe('cached', () => {
   it('the default cache is named "default"', () =>
     assert.strictEqual(cached(), cached('default')));
 
+  it("throws when cache name isn't a string", () =>
+    assert.throws(() => cached(true)));
+
+  it("doesn't throw when cache name is a string", () =>
+    assert.doesNotThrow(() => cached('default')));
+
   it('returns the same named cache for subsequent calls', () =>
     assert.strictEqual(cached('foo'), cached('foo')));
 
