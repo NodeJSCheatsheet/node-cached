@@ -17,7 +17,8 @@ module.exports = function withBackends(createTestCases) {
         debug: true,
       });
 
-      after(() => cache.end());
+      // eslint-disable-next-line no-underscore-dangle
+      after(() => cache._end());
 
       createTestCases(cache);
     });

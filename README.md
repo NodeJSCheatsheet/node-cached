@@ -2,7 +2,7 @@
 
 A simple caching library, inspired by the [Play cache API](http://www.playframework.com/documentation/2.2.x/ScalaCache) and biased towards [showing stale data instead of dog piling](http://highscalability.com/strategy-break-memcache-dog-pile).
 The interface only exposes very limited functionality, there's no multi-get or deletion of cached data.
-The library is designed to support different caching backends, though right now only memcached is implemented.
+The library support different caching backends, though right now only memcached is implemented.
 
 It supports both promise- and callback-based usage.
 
@@ -62,7 +62,7 @@ kittens.get('my.key').then(
 ### Memcached
 
 A thin wrapper around [memcached](https://github.com/3rd-Eden/node-memcached).
-You can either provide a readily configured client or a combination of hosts and additional options.
+You can either provide a readily configured client, or a combination of hosts and additional options.
 Without any additional options it will default to a local memcached on `11211`.
 
 #### Custom client instance
@@ -173,9 +173,9 @@ The two important ones are `freshFor` and `expire`:
 * `freshFor` is the time in seconds after which a value should be replaced. Replacing the value is done in the background and while the new value is generated (e.g. data is fetched from some service) the stale value is returned. Think of `freshFor` as a smarter `expire`.
 * `timeout` is the maximum time in milliseconds to wait for cache operations to complete.
   Configuring a timeout ensures that all `get`, `set`, and `unset` operations fail fast.
-  Otherwise there will be situations where one of the cache hosts goes down and reads hang for minutes while the memcached client retries to establish a connection.
-  It's **highly** recommended to set a timeout.
-  If `timeout` is left `undefined`, no timeout will be set and the operations will only fail once the underlying client, e.g. [`memcached`](https://github.com/3rd-Eden/memcached), gave up.
+  Otherwise, there will be situations where one of the cache hosts goes down and reads hang for minutes while the memcached client retries to establish a connection.
+  It's **highly** recommended setting a timeout.
+  If `timeout` is left `undefined`, no timeout will be set, and the operations will only fail once the underlying client, e.g. [`memcached`](https://github.com/3rd-Eden/memcached), gave up.
 
 ### Cache.set(key, value, opts, cb) -> Promise[Value]
 
