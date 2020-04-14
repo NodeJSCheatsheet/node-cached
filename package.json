@@ -39,6 +39,8 @@
     }
   },
   "dependencies": {
+    "@types/memcached": "^2.2.6",
+    "@types/node": "^13.11.1",
     "memcached": "^2.2.2"
   },
   "devDependencies": {
